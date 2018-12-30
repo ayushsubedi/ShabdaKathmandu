@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,8 +43,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static com.mapbox.mapboxsdk.style.layers.Property.LINE_CAP_ROUND;
 import static com.mapbox.mapboxsdk.style.layers.Property.LINE_JOIN_BEVEL;
@@ -54,13 +55,12 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
 
 
 public class EncodeActivity extends AppCompatActivity implements
-        OnMapReadyCallback, PermissionsListener, MapboxMap.OnCameraIdleListener, MapboxMap.OnCameraMoveStartedListener{
+        OnMapReadyCallback, PermissionsListener, MapboxMap.OnCameraIdleListener, MapboxMap.OnCameraMoveStartedListener, View.OnClickListener{
     private MapView mapView;
     private TextView textViewDebug, textViewResult;
     private MapboxMap mapboxMap;
     private List<String> words = new ArrayList<>();
     private FeatureCollection featureCollection;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,17 +75,16 @@ public class EncodeActivity extends AppCompatActivity implements
         FloatingActionButton loc_fab = findViewById(R.id.loc_fab);
         FloatingActionButton toggle_fab = findViewById(R.id.toggle_fab);
         mapView.getMapAsync(this);
-        words = getWords();
-
-        // Todo move to center rather than enabling component??
-        loc_fab.setOnClickListener(v -> enableLocationComponent());
-        toggle_fab.setOnClickListener(v -> toggleStyle());
+        words = Helper.getWords(this);
+        loc_fab.setOnClickListener(this);
+        toggle_fab.setOnClickListener(this);
     }
 
     private void toggleStyle(){
         String url = mapboxMap.getStyleUrl();
         String sat_map = getResources().getString(R.string.mapbox_style_satellite);
         String nor_map = getResources().getString(R.string.mapbox_style_mapbox_streets);
+        assert url != null;
         if (url.equals(sat_map)){
             mapboxMap.setStyle(nor_map);
         }
@@ -94,23 +93,6 @@ public class EncodeActivity extends AppCompatActivity implements
         }
     }
 
-    // todo move to helper
-    private List<String> getWords(){
-        List<String> words = new ArrayList<>();
-        AssetManager am = this.getAssets();
-        try {
-            InputStream is = am.open("android.txt");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                words.add(line);
-            }
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return words;
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -174,7 +156,6 @@ public class EncodeActivity extends AppCompatActivity implements
         }
     }
 
-
     @Override
     public void onMapReady(MapboxMap mapboxMap) {
         EncodeActivity.this.mapboxMap = mapboxMap;
@@ -186,23 +167,6 @@ public class EncodeActivity extends AppCompatActivity implements
         mapboxMap.addOnCameraIdleListener(this);
         setUpLineLayer();
     }
-
-    // Todo move to helper
-    private void encodeLocationToWords(){
-        LatLng target = mapboxMap.getCameraPosition().target;
-        double lat = target.getLatitude();
-        double lon = target.getLongitude();
-        int int_lat = ((int) (lat*10000)) -  270000 - 5000;
-        int int_lon = ((int) (lon*10000)) -  850000 - 2000;
-        textViewDebug.setText(String.format("lat: %s, lon: %s", target.getLatitude(), target.getLongitude()));
-        try {
-            textViewResult.setText(String.format("%s.%s", words.get(int_lat), words.get(int_lon)));
-        }
-        catch (IndexOutOfBoundsException e){
-            textViewResult.setText(R.string.na);
-        }
-    }
-
 
     /**
      * Sets up the source and layer for drawing the building outline
@@ -226,45 +190,14 @@ public class EncodeActivity extends AppCompatActivity implements
         mapboxMap.addLayer(lineLayer);
     }
 
-
     private List<Point> current_pointList;
 
-
-    // Todo clean it up
-    private void updateOutline() {
-        // Update the data source used by the building outline LineLayer and refresh the map
-        List<Point> pointList = getBuildingFeatureOutline();
-
-
-        // Process 1: move the camera to center of the house
-        if (current_pointList == null || pointList.size()==0) {
-            current_pointList = pointList;
-        } else if (!current_pointList.equals(pointList) && pointList.size()!=0) {
-            LatLng houseCenter = Helper.houseCenter(pointList);
-            CameraPosition position = new CameraPosition.Builder()
-                    .target(houseCenter)
-                    .build();
-            mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 10);
-            current_pointList = pointList;
-        }
-
-
-        // Process 2: update the house outline
-        featureCollection = FeatureCollection.fromFeatures(new Feature[]
-                {Feature.fromGeometry(LineString.fromLngLats(pointList))});
-        GeoJsonSource source = mapboxMap.getSourceAs("source");
-        if (source != null) {
-            source.setGeoJson(featureCollection);
-        }
-
-
-        // Process 3: display the name
-        encodeLocationToWords();
+    private void moveCamera(LatLng latLng){
+        CameraPosition position = new CameraPosition.Builder()
+                .target(latLng)
+                .build();
+        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 10);
     }
-
-
-
-
 
     private List<Point> getBuildingFeatureOutline() {
         // Retrieve the middle of the map
@@ -285,12 +218,12 @@ public class EncodeActivity extends AppCompatActivity implements
                 Feature buildingFeature = features.get(0);
 
                 // Build a list of Point objects from the building Feature's coordinates
-                for (int i = 0; i < ((Polygon) buildingFeature.geometry()).coordinates().size(); i++) {
+                for (int i = 0; i < Objects.requireNonNull(((Polygon) Objects.requireNonNull(buildingFeature.geometry())).coordinates()).size(); i++) {
                     for (int j = 0;
-                         j < ((Polygon) buildingFeature.geometry()).coordinates().get(i).size(); j++) {
+                         j < Objects.requireNonNull(((Polygon) Objects.requireNonNull(buildingFeature.geometry())).coordinates()).get(i).size(); j++) {
                         pointList.add(Point.fromLngLat(
-                                ((Polygon) buildingFeature.geometry()).coordinates().get(i).get(j).longitude(),
-                                ((Polygon) buildingFeature.geometry()).coordinates().get(i).get(j).latitude()
+                                Objects.requireNonNull(((Polygon) Objects.requireNonNull(buildingFeature.geometry())).coordinates()).get(i).get(j).longitude(),
+                                Objects.requireNonNull(((Polygon) Objects.requireNonNull(buildingFeature.geometry())).coordinates()).get(i).get(j).latitude()
 
                         ));
                     }
@@ -300,7 +233,6 @@ public class EncodeActivity extends AppCompatActivity implements
         }
         return pointList;
     }
-
 
     @Override
     @SuppressWarnings( {"MissingPermission"})
@@ -346,14 +278,47 @@ public class EncodeActivity extends AppCompatActivity implements
 
     @Override
     public void onCameraIdle() {
-//        encodeLocationToWords();
-        updateOutline();
-    }
+        // Update the data source used by the building outline LineLayer and refresh the map
+        List<Point> pointList = getBuildingFeatureOutline();
 
+        // Process 1: move the camera to center of the house
+        if (current_pointList == null || pointList.size()==0) {
+            current_pointList = pointList;
+        } else if (!current_pointList.equals(pointList)) {
+            LatLng houseCenter = Helper.houseCenter(pointList);
+            moveCamera(houseCenter);
+            current_pointList = pointList;
+        }
+
+
+        // Process 2: update the house outline
+        featureCollection = FeatureCollection.fromFeatures(new Feature[]
+                {Feature.fromGeometry(LineString.fromLngLats(pointList))});
+        GeoJsonSource source = mapboxMap.getSourceAs("source");
+        if (source != null) {
+            source.setGeoJson(featureCollection);
+        }
+
+        // Process 3: display the name
+        textViewResult.setText(Helper.encodeLocationToWords(mapboxMap.getCameraPosition().target));
+    }
 
     @Override
     public void onCameraMoveStarted(int reason) {
         textViewDebug.setText("");
         textViewResult.setText("");
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.loc_fab:
+                enableLocationComponent();
+                break;
+
+            case R.id.toggle_fab:
+                toggleStyle();
+                break;
+        }
     }
 }
