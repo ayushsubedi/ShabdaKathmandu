@@ -18,7 +18,6 @@ import java.util.List;
 public class Helper {
     private static List<String> words = new ArrayList<>();
 
-    // Todo: change this to convex hull
     protected static LatLng houseCenter(List<Point> pointList){
         ArrayList<Double> lat_list = new ArrayList<>();
         ArrayList<Double> lon_list = new ArrayList<>();
@@ -32,6 +31,19 @@ public class Helper {
     }
 
 
+    // TODO this is still not the best solution, there are going to be cases where centroid will lie
+    // outside the polygon
+
+    protected static LatLng houseCentroid(List<Point> pointList){
+        double centroidLat = 0, centroidLon = 0;
+
+        for (int i=0; i<pointList.size(); i++){
+            centroidLat += pointList.get(i).latitude();
+            centroidLon += pointList.get(i).longitude();
+        }
+
+        return new LatLng(centroidLat/pointList.size(), centroidLon/pointList.size());
+    }
 
     private static List<String> getWords(Context context){
         List<String> words = new ArrayList<>();

@@ -279,7 +279,7 @@ public class EncodeActivity extends AppCompatActivity implements
         if (current_pointList == null || pointList.size()==0) {
             current_pointList = pointList;
         } else if (!current_pointList.equals(pointList)) {
-            LatLng houseCenter = Helper.houseCenter(pointList);
+            LatLng houseCenter = Helper.houseCentroid(pointList);
             moveCamera(houseCenter);
             current_pointList = pointList;
         }
