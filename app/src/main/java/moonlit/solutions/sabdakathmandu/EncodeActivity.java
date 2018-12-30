@@ -1,6 +1,5 @@
 package moonlit.solutions.sabdakathmandu;
 
-import android.content.res.AssetManager;
 
 import android.graphics.PointF;
 import android.os.Bundle;
@@ -38,10 +37,6 @@ import com.mapbox.mapboxsdk.plugins.building.BuildingPlugin;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -59,8 +54,8 @@ public class EncodeActivity extends AppCompatActivity implements
     private MapView mapView;
     private TextView textViewDebug, textViewResult;
     private MapboxMap mapboxMap;
-    private List<String> words = new ArrayList<>();
     private FeatureCollection featureCollection;
+    private List<Point> current_pointList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +70,8 @@ public class EncodeActivity extends AppCompatActivity implements
         FloatingActionButton loc_fab = findViewById(R.id.loc_fab);
         FloatingActionButton toggle_fab = findViewById(R.id.toggle_fab);
         mapView.getMapAsync(this);
-        words = Helper.getWords(this);
+        // TODO clean this
+        List<String> words = Helper.getWords(this);
         loc_fab.setOnClickListener(this);
         toggle_fab.setOnClickListener(this);
     }
@@ -190,7 +186,7 @@ public class EncodeActivity extends AppCompatActivity implements
         mapboxMap.addLayer(lineLayer);
     }
 
-    private List<Point> current_pointList;
+
 
     private void moveCamera(LatLng latLng){
         CameraPosition position = new CameraPosition.Builder()
