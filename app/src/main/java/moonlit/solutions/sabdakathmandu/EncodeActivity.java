@@ -70,8 +70,6 @@ public class EncodeActivity extends AppCompatActivity implements
         FloatingActionButton loc_fab = findViewById(R.id.loc_fab);
         FloatingActionButton toggle_fab = findViewById(R.id.toggle_fab);
         mapView.getMapAsync(this);
-        // TODO clean this
-        List<String> words = Helper.getWords(this);
         loc_fab.setOnClickListener(this);
         toggle_fab.setOnClickListener(this);
     }
@@ -296,7 +294,7 @@ public class EncodeActivity extends AppCompatActivity implements
         }
 
         // Process 3: display the name
-        textViewResult.setText(Helper.encodeLocationToWords(mapboxMap.getCameraPosition().target));
+        textViewResult.setText(Helper.encodeLocationToWords(this, mapboxMap.getCameraPosition().target));
     }
 
     @Override

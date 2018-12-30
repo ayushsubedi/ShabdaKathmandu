@@ -14,7 +14,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
 public class Helper {
+    private static List<String> words = new ArrayList<>();
 
     // Todo: change this to convex hull
     protected static LatLng houseCenter(List<Point> pointList){
@@ -29,9 +31,10 @@ public class Helper {
         return new LatLng(centerLatitude, centerLongitude);
     }
 
-    private static List<String> words = new ArrayList<>();
 
-    protected static List<String> getWords(Context context){
+
+    private static List<String> getWords(Context context){
+        List<String> words = new ArrayList<>();
         AssetManager am = context.getAssets();
         try {
             InputStream is = am.open("android.txt");
@@ -47,7 +50,10 @@ public class Helper {
         return words;
     }
 
-    protected static String encodeLocationToWords(LatLng target){
+    protected static String encodeLocationToWords(Context context, LatLng target){
+        if (words == null || words.size()== 0){
+            words = getWords(context);
+        }
         double lat = target.getLatitude();
         double lon = target.getLongitude();
         int int_lat = ((int) (lat*10000)) -  270000 - 5000;
