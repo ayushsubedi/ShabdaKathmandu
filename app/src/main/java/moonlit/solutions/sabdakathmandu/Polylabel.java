@@ -59,8 +59,7 @@ public class Polylabel {
                 bestCell = cell;
             }
 
-            // do not drill down further if there's no chance of a better solution
-//            Log.e("coordinates->", "p_check: "+(cell.max - bestCell.d));
+
 
             if (cell.max - bestCell.d <= precision) continue;
 

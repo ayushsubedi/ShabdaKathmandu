@@ -57,13 +57,9 @@ public class Helper {
         for (int i=0; i<pointList.size()-1; i++){
             coordinates.add(Collections.singletonList(Position.fromCoordinates(pointList.get(i).latitude(), pointList.get(i).longitude())));
         }
-        Log.e("coordinates->", String.valueOf(coordinates));
         Polygon polygon = Polygon.fromCoordinates(coordinates);// Get polygon data from somewhere.
         com.mapbox.services.commons.geojson.Point p = Polylabel.polylabel(pointList, polygon, 1);
-        Log.e("coordinates->", String.valueOf(new LatLng(p.getCoordinates().getLatitude(), p.getCoordinates().getLongitude())));
         return new LatLng(p.getCoordinates().getLongitude(), p.getCoordinates().getLatitude());
-
-//        return houseCenter(pointList);
     }
 
 
