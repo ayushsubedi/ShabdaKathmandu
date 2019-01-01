@@ -2,7 +2,6 @@ package moonlit.solutions.sabdakathmandu;
 
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.util.Log;
 
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -34,6 +33,7 @@ public class Helper {
 
     // TODO this is still not the best solution, there are going to be cases where centroid will lie
     // outside the polygon
+    // subtracting 1 to avoid inconsistency in means caused by repeting points in enclosed polyline
     protected static LatLng houseCentroid(List<Point> pointList){
         double centroidLat = 0, centroidLon = 0;
 
@@ -47,8 +47,9 @@ public class Helper {
 
     // TODO: Find the polygon pole of inaccessibility, not to be confused with centroid
     // TODO: this point, unlike centroid will always lie inside the polygon
-    // polygon pole of inaccessibility
     protected static LatLng housePoleOfInaccessibility(){
+
+
         return null;
     }
 

@@ -284,10 +284,10 @@ public class EncodeActivity extends AppCompatActivity implements
             current_pointList = pointList;
         }
 
-
         // Process 2: update the house outline
         featureCollection = FeatureCollection.fromFeatures(new Feature[]
                 {Feature.fromGeometry(LineString.fromLngLats(pointList))});
+
         GeoJsonSource source = mapboxMap.getSourceAs("source");
         if (source != null) {
             source.setGeoJson(featureCollection);
