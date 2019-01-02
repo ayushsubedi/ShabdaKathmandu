@@ -54,12 +54,15 @@ public class Helper {
     // TODO: this point, unlike centroid will always lie inside the polygon
     protected static LatLng housePoleOfInaccessibility(List<Point> pointList){
         List<List<Position>> coordinates = new ArrayList<>();
-        for (int i=0; i<pointList.size()-1; i++){
+        for (int i=0; i<pointList.size(); i++){
             coordinates.add(Collections.singletonList(Position.fromCoordinates(pointList.get(i).latitude(), pointList.get(i).longitude())));
         }
         Polygon polygon = Polygon.fromCoordinates(coordinates);// Get polygon data from somewhere.
         com.mapbox.services.commons.geojson.Point p = Polylabel.polylabel(pointList, polygon, 1);
-        return new LatLng(p.getCoordinates().getLongitude(), p.getCoordinates().getLatitude());
+        Log.e("coordinates-centroid>", String.valueOf(houseCentroid(pointList)));
+        LatLng poly = new LatLng(p.getCoordinates().getLongitude(), p.getCoordinates().getLatitude());
+        Log.e("coordinates-polylabel>", String.valueOf(poly));
+        return poly;
     }
 
 

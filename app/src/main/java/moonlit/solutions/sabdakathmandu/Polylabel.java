@@ -2,7 +2,6 @@ package moonlit.solutions.sabdakathmandu;
 
 import android.util.Log;
 
-import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.services.commons.geojson.Point;
 import com.mapbox.services.commons.geojson.Polygon;
 import com.mapbox.services.commons.models.Position;
@@ -30,7 +29,6 @@ public class Polylabel {
         double minY = Collections.min(lat);
         double maxY = Collections.max(lat);
 
-
         double width = maxX - minX;
         Log.e("coordinates->", "max: "+maxX+" min: "+minX);
         double height = maxY - minY;
@@ -44,6 +42,7 @@ public class Polylabel {
         // cover polygon with initial cells
         for (double x = minX; x < maxX; x += cellSize) {
             for (double y = minY; y < maxY; y += cellSize) {
+                Log.e("coordinates->", "cellcompare: "+minX);
                 cellQueue.add(new Cell(x + h, y + h, h, polygon));
             }
         }
@@ -54,12 +53,11 @@ public class Polylabel {
             // pick the most promising cell from the queue
             Cell cell = cellQueue.poll();
 
-            // update the best cell if we found a better one
+//             update the best cell if we found a better one
             if (cell.d > bestCell.d) {
+                Log.e("coordinates->", "updated");
                 bestCell = cell;
             }
-
-
 
             if (cell.max - bestCell.d <= precision) continue;
 
@@ -84,7 +82,6 @@ public class Polylabel {
         double centerLatitude = ( Collections.min(lat_list) + Collections.max(lat_list) ) / 2;
         double centerLongitude = ( Collections.min(lon_list) + Collections.max(lon_list) ) / 2;
         return new Cell(centerLatitude, centerLongitude, 0, polygon);
-//        return new LatLng(centerLatitude, centerLongitude);
     }
 
     // get polygon centroid
