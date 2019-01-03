@@ -2,12 +2,14 @@ package moonlit.solutions.sabdakathmandu;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.util.Log;
 
 
 import com.mapbox.geojson.Point;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
-
+import com.mapbox.services.commons.geojson.Polygon;
+import com.mapbox.services.commons.models.Position;
 
 
 import java.io.BufferedReader;
@@ -51,6 +53,28 @@ public class Helper {
 
     // TODO: Find the polygon pole of inaccessibility, not to be confused with centroid
     // TODO: this point, unlike centroid will always lie inside the polygon
+    protected static LatLng housePoleOfInaccessibility(List<Point> pointList){
+        // The input param is a list of Point (com.mapbox.geojson.Point)
+
+        List<List<Position>> rings = new ArrayList<>();
+        List<Position> outer_ring = new ArrayList<>();
+        for (int i=0; i<pointList.size()-1; i++){
+            outer_ring.add(Position.fromCoordinates(pointList.get(i).latitude(), pointList.get(i).longitude()));
+        }
+        rings.add(outer_ring);
+        Polygon polygon = Polygon.fromCoordinates(rings);// Get polygon data from somewhere.
+        com.mapbox.services.commons.geojson.Point p = Polylabel.polylabel(polygon, 100);
+        LatLng output = new LatLng(p.getCoordinates().getLongitude(), p.getCoordinates().getLatitude());
+        return output;
+    }
+
+    private static List<Position> test(List<Point> pointList){
+        List<Position> coordinates = new ArrayList<>();
+        for (int i=0; i<pointList.size()-1; i++){
+            coordinates.add(Position.fromCoordinates(pointList.get(i).latitude(), pointList.get(i).longitude()));
+        }
+        return coordinates;
+    }
 
 
     private static List<String> getWords(Context context){
