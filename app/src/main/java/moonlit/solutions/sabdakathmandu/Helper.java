@@ -2,8 +2,6 @@ package moonlit.solutions.sabdakathmandu;
 
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.util.Log;
-
 
 import com.mapbox.geojson.Point;
 
@@ -55,27 +53,26 @@ public class Helper {
     // TODO: this point, unlike centroid will always lie inside the polygon
     protected static LatLng housePoleOfInaccessibility(List<Point> pointList){
         // The input param is a list of Point (com.mapbox.geojson.Point)
-
+        // This Object is different to the Point object (com.mapbox.services.commons.geojson.Point) used in Polylabel
         List<List<Position>> rings = new ArrayList<>();
         List<Position> outer_ring = new ArrayList<>();
+
+        // Creating outer ring
         for (int i=0; i<pointList.size()-1; i++){
             outer_ring.add(Position.fromCoordinates(pointList.get(i).latitude(), pointList.get(i).longitude()));
         }
+
+        // Not concerned about inner ring
+        // Polylabel also uses the 0 index (outer ring)
         rings.add(outer_ring);
+
         Polygon polygon = Polygon.fromCoordinates(rings);// Get polygon data from somewhere.
-        com.mapbox.services.commons.geojson.Point p = Polylabel.polylabel(polygon, 100);
+        com.mapbox.services.commons.geojson.Point p = Polylabel.polylabel(polygon, 0.00000004);
+
+        // reversed
         LatLng output = new LatLng(p.getCoordinates().getLongitude(), p.getCoordinates().getLatitude());
         return output;
     }
-
-    private static List<Position> test(List<Point> pointList){
-        List<Position> coordinates = new ArrayList<>();
-        for (int i=0; i<pointList.size()-1; i++){
-            coordinates.add(Position.fromCoordinates(pointList.get(i).latitude(), pointList.get(i).longitude()));
-        }
-        return coordinates;
-    }
-
 
     private static List<String> getWords(Context context){
         List<String> words = new ArrayList<>();
