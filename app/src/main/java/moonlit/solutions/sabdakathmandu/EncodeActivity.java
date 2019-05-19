@@ -294,7 +294,9 @@ public class EncodeActivity extends AppCompatActivity implements
         }
 
         // Process 3: display the name
-        textViewResult.setText(Helper.encodeLocationToWords(this, mapboxMap.getCameraPosition().target));
+        LatLng target = mapboxMap.getCameraPosition().target;
+        textViewResult.setText(Helper.encodeLocationToWords(this, target));
+        textViewDebug.setText(String.format("%slat=%s&lng=%s", Helper.SERVER_BASE, target.getLatitude(), target.getLongitude()));
     }
 
     @Override

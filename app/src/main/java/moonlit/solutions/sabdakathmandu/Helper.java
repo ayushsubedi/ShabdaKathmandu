@@ -22,7 +22,7 @@ import java.util.List;
 
 public class Helper {
     //https://moonlitplayground.ml/api/geo_locate?lat=27&lng=85
-    public String SERVER_BASE = "https://moonlitplayground.ml/api/geo_locate?";
+    public static String SERVER_BASE = "https://moonlitplayground.ml/api/geo_locate?";
     private static List<String> words = new ArrayList<>();
 
     protected static LatLng houseCenter(List<Point> pointList){
